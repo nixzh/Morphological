@@ -1,0 +1,61 @@
+#include <opencv2/opencv.hpp>
+#include <iostream>
+#include <string>
+
+using namespace cv;
+using namespace std;
+
+int main()
+{
+	int flag;
+	char a[10];
+	Mat kenel(3, 3, CV_8UC1);
+	Mat img1;
+	do
+	{
+		char m[100];
+		cout << "请输入图片路径：" << endl;
+		cin.getline(m, 100);
+		img1 = imread(m, 0);
+	} while (img1.empty());
+	
+	for (int i = 0; i < img1.rows; i++)//强制二值化
+	{
+		for (int j = 0; j < img1.cols; j++)
+		{
+			img1.at<uchar>(i, j) = floor(img1.at<uchar>(i, j) / 128)*255;
+		}
+	}
+	cout << "请输入变换类型（1膨胀，2腐蚀）：" << endl;
+	cin >> flag;
+	cout << "请输入9个元素作为结构元（0或1组成）："<< endl;
+	cin>>a;
+	for (int i = 0; i < 3; i++)//构造结构元
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			kenel.at<uchar>(i, j) = a[3*i+j]-48;
+		}
+	}
+	Mat img2(img1.size(), CV_8UC1);
+	if (flag == 1)//膨胀处理
+	{
+		dilate(img1, img2, kenel, Point(-1, -1));
+		imwrite("F://膨胀.tif", img2);
+	}
+	else if (flag == 2)//腐蚀处理
+	{
+		erode(img1, img2, kenel, Point(-1, -1));
+		imwrite("F://腐蚀.tif", img2);
+	}
+	else
+	{
+		cout << "ERROR" << endl;
+		return -1;
+	}
+	imshow("原图", img1);
+	imshow("处理后图像", img2);
+	waitKey();
+	return 0;
+	
+}
